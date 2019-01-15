@@ -22,4 +22,5 @@ plugin-dir=<path to c-lightning-plugins>
 
 
 ## Added RPC Commands
-`balance` : Aggregated on-chain balance and channel balance information.
+`balance` : Aggregated on-chain balance and channel balance information. Still a work in progress
+`closeall` : Close all active channels, with option to force close after timeout
