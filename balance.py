@@ -21,15 +21,15 @@ def balance(plugin):
     invoices = plugin.rpc.listinvoices()
     node_id = plugin.rpc.getinfo()['id']
 
+    # Funds available to add to channel
     onchain_value = sum([int(x["value"]) for x in funds["outputs"]])
 
     pending_incoming, pending_outgoing = 0, 0
     active_incoming, active_outgoing = 0, 0
     closed_incoming, closed_outgoing = 0, 0
     initial_incoming, initial_outgoing = 0, 0
+    num_incoming, num_outgoing = 0, 0
     reserve_balance = 0
-    num_incoming = 0
-    num_outgoing = 0
     for p in peerinfo['peers']:
         for channel in p['channels']:
             # Channel is incoming if our node didn't fund the channel
@@ -37,22 +37,20 @@ def balance(plugin):
             if incoming:
                 num_incoming += 1
                 initial_incoming += channel['msatoshi_total']
-                if channel_pending(channel['state']):
-                    pending_incoming += channel['msatoshi_total'] - channel['msatoshi_to_us']
-                elif channel_active(channel['state']):
-                    active_incoming += channel['msatoshi_total'] - channel['msatoshi_to_us']
-                else:
-                    closed_incoming += channel['msatoshi_total'] - channel['msatoshi_to_us']
             else:
                 num_outgoing += 1
                 initial_outgoing += channel['msatoshi_total']
+
+            if channel_pending(channel['state']):
+                pending_outgoing += channel['msatoshi_to_us']
+                pending_incoming += channel['msatoshi_total'] - channel['msatoshi_to_us']
+            elif channel_active(channel['state']):
                 reserve_balance += channel['our_channel_reserve_satoshis']
-                if channel_pending(channel['state']):
-                    pending_outgoing += channel['msatoshi_to_us']
-                elif channel_active(channel['state']):
-                    active_outgoing += channel['msatoshi_to_us']
-                else:
-                    closed_outgoing += channel['msatoshi_to_us']
+                active_outgoing += channel['msatoshi_to_us']
+                active_incoming += channel['msatoshi_total'] - channel['msatoshi_to_us']
+            else:
+                closed_incoming += channel['msatoshi_total'] - channel['msatoshi_to_us']
+                closed_outgoing += channel['msatoshi_to_us']
 
     paid = sum([p['msatoshi'] for p in payments['payments'] if p['status'] == 'complete'])
     paid_w_fees = sum([p['msatoshi_sent'] for p in payments['payments'] if p['status'] == 'complete'])
