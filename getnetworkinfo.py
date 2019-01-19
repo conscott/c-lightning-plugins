@@ -16,13 +16,14 @@ def getnetworkinfo(plugin, force=False, timeout=30):
     channels = plugin.rpc.listchannels()['channels']
 
     num_nodes = len(nodes)
-    num_channels = len(channels)
+    num_channels = len(channels) / 2
 
     channel_sat = [c['satoshis'] for c in channels]
     base_fee_msat = [c['base_fee_millisatoshi'] for c in channels]
     fee_rate = [c['fee_per_millionth'] for c in channels]
 
-    total_capacity = sum(channel_sat)
+    # Each channel is counted twice, must divide by two
+    total_capacity = sum(channel_sat) / 2
     min_channel_size = min(channel_sat)
     max_channel_size = max(channel_sat)
     med_channel_size = median(channel_sat)
