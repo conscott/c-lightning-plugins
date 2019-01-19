@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import json
+from collections import defaultdict
 from lightning import Plugin
 from statistics import median
 
@@ -37,10 +38,23 @@ def getnetworkinfo(plugin, force=False, timeout=30):
     med_fee_rate = median(fee_rate)
     avg_fee_rate = sum(fee_rate) / len(fee_rate)
 
+    # Graph stats
+    graph = defaultdict(list)
+    for c in channels:
+        graph[c['source']].append(c['destination'])
+
+    channels_per_node = [len(v) for k, v in graph.items()]
+    max_chan = max(channels_per_node)
+    med_chan = median(channels_per_node)
+    avg_chan = sum(channels_per_node) / len(channels_per_node)
+
     data = {
         'num_nodes': num_nodes,
         'num_channels': num_channels,
         'total_network_capacity_btc': total_capacity / 10**8.0,
+        'avg_channels_per_node': avg_chan,
+        'med_channels_per_node': med_chan,
+        'max_channels_per_node': max_chan,
         'min_channel_size_sat': min_channel_size,
         'max_channel_size_sat': max_channel_size,
         'median_channel_size_sat': med_channel_size,
@@ -62,5 +76,6 @@ def getnetworkinfo(plugin, force=False, timeout=30):
 @plugin.method("init")
 def init(options, configuration, plugin):
     print("Plugin getnetworkinfo.py initialized")
+
 
 plugin.run()
