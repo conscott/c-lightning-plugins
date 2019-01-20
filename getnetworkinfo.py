@@ -16,27 +16,24 @@ def getnetworkinfo(plugin, force=False, timeout=30):
     channels = plugin.rpc.listchannels()['channels']
 
     # Graph stats
+    capacity = 0
+    channel_ids = set()
     graph = defaultdict(list)
     for c in channels:
         graph[c['source']].append(c['destination'])
-
-    chan = 0
-    unique = defaultdict(dict)
-    for source, destinations in graph.items():
-        for d in destinations:
-            if d not in unique or source not in unique[d]:
-                unique[source][d] = 1
-                chan += 1
+        if c['short_channel_id'] not in channel_ids:
+            channel_ids.add(c['short_channel_id'])
+            capacity += c['satoshis']
 
     num_nodes = len(nodes)
-    num_channels = chan
+    num_channels = len(channel_ids)
 
     channel_sat = [c['satoshis'] for c in channels]
     base_fee_msat = [c['base_fee_millisatoshi'] for c in channels]
     fee_rate = [c['fee_per_millionth'] for c in channels]
 
     # Each channel is counted twice, must divide by two
-    total_capacity = sum(channel_sat) / 2
+    total_capacity = capacity
     min_channel_size = min(channel_sat)
     max_channel_size = max(channel_sat)
     med_channel_size = median(channel_sat)
