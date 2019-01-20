@@ -32,7 +32,6 @@ def getnetworkinfo(plugin, force=False, timeout=30):
     base_fee_msat = [c['base_fee_millisatoshi'] for c in channels]
     fee_rate = [c['fee_per_millionth'] for c in channels]
 
-    # Each channel is counted twice, must divide by two
     total_capacity = capacity
     min_channel_size = min(channel_sat)
     max_channel_size = max(channel_sat)
