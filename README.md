@@ -18,11 +18,15 @@ Alternatively you can add a line to the c-lightning config (~/.lightning/config)
 ```
 ...
 plugin-dir=<path to c-lightning-plugins>
+...
 ```
 
-
-## Added RPC Commands
+## Added Commands
 
 * `balance` : Aggregated on-chain balance and channel balance information. Still a work in progress...
 * `closeall` : Close all active channels, with option to force close after timeout
 * `getnetworkinfo` : Get statistical information about the current state of the network
+
+## Future Ideas
+
+* balance_channels : Try to autobalance channels
