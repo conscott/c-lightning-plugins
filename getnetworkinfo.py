@@ -9,7 +9,7 @@ plugin = Plugin(autopatch=True)
 
 # A copy of lnd's getnetworkinfo rpc command
 @plugin.method("getnetworkinfo")
-def getnetworkinfo(plugin, force=False, timeout=30):
+def getnetworkinfo(plugin):
     """Get statistical information about the current state of the network.
     """
     nodes = plugin.rpc.listnodes()['nodes']
