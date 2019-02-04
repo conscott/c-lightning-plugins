@@ -1,44 +1,17 @@
 #!/usr/bin/env python3
 from lightning import Plugin
 import json
-from plugin_lib import channel_pending, channel_active
+from plugin_lib import (valid_units, is_valid_unit, convert_msat,
+                        convert_sat, channel_pending, channel_active)
 
 plugin = Plugin(autopatch=True)
-
-# Can return values as these units
-valid_units = ['msat', 'sat', 'mbtc', 'btc']
-
-sat_convert = {
-    'msat': 1000.0,
-    'sat': 1.0,
-    'mbtc': 10**5.0,
-    'btc': 10**8.0
-}
-
-msat_convert = {
-    'msat': 1.0,
-    'sat': 1000.0,
-    'mbtc': 10**8.0,
-    'btc': 10**11.0
-}
-
-
-# Change msat to unit
-def convert_msat(val, unit):
-    return val / msat_convert[unit]
-
-
-# Change sat to unit
-def convert_sat(val, unit):
-    return val / sat_convert[unit]
 
 
 @plugin.method("balance")
 def balance(plugin, unit='btc'):
     """List detailed onchain and channel balance information
     """
-    unit = unit.lower()
-    if unit not in valid_units:
+    if not is_valid_unit(unit):
         return "Value units are %s" % ', '.join(valid_units)
 
     funds = plugin.rpc.listfunds()
@@ -129,5 +102,6 @@ def balance(plugin, unit='btc'):
 @plugin.method("init")
 def init(options, configuration, plugin):
     print("Plugin balance.py initialized")
+
 
 plugin.run()
