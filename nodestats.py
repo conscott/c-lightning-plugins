@@ -9,7 +9,7 @@ plugin = Plugin(autopatch=True)
 
 # A copy of lnd's nodestats rpc command
 @plugin.method("nodestats")
-def nodestats(plugin, nodeid, unit='btc', verbose=False):
+def nodestats(plugin, nodeid, unit='sat', verbose=False):
     """Get statistical information about a node's channel
     """
 
@@ -22,7 +22,7 @@ def nodestats(plugin, nodeid, unit='btc', verbose=False):
     # Extract public channels for a node
     node_info = plugin.rpc.listnodes(nodeid)['nodes'][0]
     node_channels = [c for c in plugin.rpc.listchannels()['channels'] if c['source'] == nodeid]
-    active_channels = [c for c in node_channels if c['active'] == 'true']
+    active_channels = [c for c in node_channels if c['active'] is True]
     capacity = [c['satoshis'] for c in active_channels]
     fee_rate = [c['fee_per_millionth'] for c in active_channels]
     base_fee = [c['base_fee_millisatoshi'] for c in active_channels]
