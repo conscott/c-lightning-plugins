@@ -26,6 +26,7 @@ plugin-dir=<path to c-lightning-plugins>
 * `balance` : Aggregated on-chain balance and channel balance information. Still a work in progress...
 * `closeall` : Close all active channels, with option to force close after timeout
 * `getnetworkinfo` : Get statistical information about the current state of the network
+* `nodestats` : Get statistical information about a node's channels
 
 ## Future Ideas
 
