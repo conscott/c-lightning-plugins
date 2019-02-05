@@ -19,8 +19,11 @@ def nodestats(plugin, nodeid, unit='sat', verbose=False):
     if not is_valid_unit(unit):
         return "Value units are %s" % ', '.join(valid_units)
 
-    # Extract public channels for a node
-    node_info = plugin.rpc.listnodes(nodeid)['nodes'][0]
+    try:
+        node_info = plugin.rpc.listnodes(nodeid)['nodes'][0]
+    except IndexError:
+        return "Node id not found"
+
     node_channels = [c for c in plugin.rpc.listchannels()['channels'] if c['source'] == nodeid]
     active_channels = [c for c in node_channels if c['active'] is True]
     capacity = [c['satoshis'] for c in active_channels]
@@ -50,15 +53,16 @@ def nodestats(plugin, nodeid, unit='sat', verbose=False):
         'node': nodeid,
         'alias': node_info['alias'],
         'color': node_info['color'],
-        'total_capacity_sat': convert_sat(capacity_sats, unit),
+        'unit': unit,
+        'total_capacity': convert_sat(capacity_sats, unit),
         'active_channels': num_active_channels,
         'closed_channels': num_closed_channels,
         'median_channel_capacity': convert_sat(capacity_med, unit),
         'average_channel_capacity': convert_sat(capacity_avg, unit),
-        'median_fee_rate_sat_per_byte': convert_msat(fee_rate_med, unit),
-        'average_fee_rate_sat_per_byte': convert_msat(fee_rate_avg, unit),
-        'median_base_fee_sat': convert_msat(base_fee_med, unit),
-        'average_base_fee_sat': convert_msat(base_fee_avg, unit)
+        'median_fee_rate': convert_msat(fee_rate_med, unit),
+        'average_fee_rate': convert_msat(fee_rate_avg, unit),
+        'median_base_fee': convert_msat(base_fee_med, unit),
+        'average_base_fee': convert_msat(base_fee_avg, unit)
     }
 
     if verbose:
