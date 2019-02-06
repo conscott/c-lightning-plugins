@@ -2,7 +2,7 @@
 
 Work In Progress...
 
-A collection of plugins for c-lightning to do convenient things.
+A collection of plugins for c-lightning to do convenient things. Please contribute ideas!
 
 ## Usage
 
@@ -21,12 +21,19 @@ plugin-dir=<path to c-lightning-plugins>
 ...
 ```
 
-## Added Commands
+## RPC Commands
 
 * `balance` : Aggregated on-chain balance and channel balance information. Still a work in progress...
 * `closeall` : Close all active channels, with option to force close after timeout
 * `getnetworkinfo` : Get statistical information about the current state of the network
-* `nodestats` : Get statistical information about a node's channels
+* `nodestats` : Get statistical information about a particular node, akin to [1ML](https://1ml.com) stats
+
+## Pretty Print
+To pretty print the JSON, simply pipe the output to [jq](https://stedolan.github.io/jq/)
+
+```
+lightning-cli balance | jq
+```
 
 ## Future Ideas
 
