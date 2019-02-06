@@ -78,9 +78,4 @@ def getnetworkinfo(plugin):
     return data
 
 
-@plugin.method("init")
-def init(options, configuration, plugin):
-    print("Plugin getnetworkinfo.py initialized")
-
-
 plugin.run()

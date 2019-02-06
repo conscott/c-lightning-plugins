@@ -99,9 +99,4 @@ def balance(plugin, unit='btc'):
     return data
 
 
-@plugin.method("init")
-def init(options, configuration, plugin):
-    print("Plugin balance.py initialized")
-
-
 plugin.run()

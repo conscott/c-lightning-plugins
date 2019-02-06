@@ -72,9 +72,4 @@ def nodestats(plugin, nodeid, unit='sat', verbose=False):
     return data
 
 
-@plugin.method("init")
-def init(options, configuration, plugin):
-    print("Plugin nodestats.py initialized")
-
-
 plugin.run()

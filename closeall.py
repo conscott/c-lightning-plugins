@@ -17,8 +17,4 @@ def closeall(plugin, force=False, timeout=30):
     return "Done."
 
 
-@plugin.method("init")
-def init(options, configuration, plugin):
-    print("Plugin closeall.py initialized")
-
 plugin.run()
