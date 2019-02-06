@@ -37,9 +37,7 @@ def nodestats(plugin, nodeid, unit='sat', verbose=False):
         capacity_med = median(capacity)
         capacity_avg = capacity_sats / num_active_channels
         fee_rate_med = median(fee_rate)
-        fee_rate_avg = sum(fee_rate) / num_active_channels
         base_fee_med = median(base_fee)
-        base_fee_avg = sum(base_fee) / num_active_channels
     else:
         capacity_sats = 0
         capacity_med = 0
@@ -53,6 +51,7 @@ def nodestats(plugin, nodeid, unit='sat', verbose=False):
         'node': nodeid,
         'alias': node_info['alias'],
         'color': node_info['color'],
+        'ip_addrs': [addr['address'] for addr in node_info['addresses']],
         'unit': unit,
         'total_capacity': convert_sat(capacity_sats, unit),
         'active_channels': num_active_channels,
@@ -60,9 +59,7 @@ def nodestats(plugin, nodeid, unit='sat', verbose=False):
         'median_channel_capacity': convert_sat(capacity_med, unit),
         'average_channel_capacity': convert_sat(capacity_avg, unit),
         'median_fee_rate': convert_msat(fee_rate_med, unit),
-        'average_fee_rate': convert_msat(fee_rate_avg, unit),
         'median_base_fee': convert_msat(base_fee_med, unit),
-        'average_base_fee': convert_msat(base_fee_avg, unit)
     }
 
     if verbose:
