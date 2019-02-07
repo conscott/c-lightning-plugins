@@ -2,7 +2,7 @@
 valid_units = ['msat', 'sat', 'mbtc', 'btc']
 
 sat_convert = {
-    'msat': 1000.0,
+    'msat': 0.001,
     'sat': 1.0,
     'mbtc': 10**5.0,
     'btc': 10**8.0
