@@ -16,8 +16,9 @@ msat_convert = {
     'btc': 10**11.0
 }
 
+
 def get_nodeid(rpc):
-    return rpc.getinfo['id']
+    return rpc.getinfo()['id']
 
 
 def is_valid_unit(unit):
@@ -44,6 +45,7 @@ def channel_active(state):
     return (state != 'FUNDING_SPEND_SEEN' and
             state != 'CLOSINGD_COMPLETE' and
             state != 'ONCHAIN')
+
 
 def channel_closed(state):
     return not (channel_pending(state) or channel_active(state))
