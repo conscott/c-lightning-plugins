@@ -27,6 +27,7 @@ plugin-dir=<path to c-lightning-plugins>
 * `closeall` : Close all active channels, with option to force close after timeout
 * `getnetworkinfo` : Get statistical information about the current state of the network
 * `nodestats` : Get statistical information about a particular node, akin to [1ML](https://1ml.com) stats
+* `filter_channels`: Filter channels by various parameters
 
 ## Pretty Print
 To pretty print the JSON, simply pipe the output to [jq](https://stedolan.github.io/jq/)
