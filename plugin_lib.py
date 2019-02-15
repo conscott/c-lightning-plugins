@@ -1,6 +1,19 @@
-# Can return values as these units
-valid_units = ['msat', 'sat', 'mbtc', 'btc']
-channel_filters = ['pending', 'active', 'closed', 'incoming', 'outgoing', 'greater_than', 'less_than']
+valid_units = (
+    'msat',
+    'sat',
+    'mbtc',
+    'btc'
+)
+
+channel_filters = (
+   'pending',
+   'active',
+   'closed',
+   'incoming',
+   'outgoing',
+   'greater_than',
+   'less_than'
+)
 
 sat_convert = {
     'msat': 0.001,
@@ -49,3 +62,64 @@ def channel_active(state):
 
 def channel_closed(state):
     return not (channel_pending(state) or channel_active(state))
+
+
+def pending_channels(rpc):
+    return [p for p in rpc.listpeers()['peers']
+            if p['channels'] and channel_pending(p['channels'][0]['state'])]
+
+
+def active_channels(rpc):
+    return [p for p in rpc.listpeers()['peers']
+            if p['channels'] and channel_active(p['channels'][0]['state'])]
+
+
+def closed_channels(rpc):
+    return [p for p in rpc.listpeers()['peers']
+            if p['channels'] and channel_closed(p['channels'][0]['state'])]
+
+
+def incoming_channels(rpc):
+    return [p for p in rpc.listpeers()['peers']
+            if p['channels'] and p['channels'][0]['funding_allocation_msat'][get_nodeid(rpc)] <= 0]
+
+
+def outgoing_channels(rpc):
+    return [p for p in rpc.listpeers()['peers']
+            if p['channels'] and p['channels'][0]['funding_allocation_msat'][get_nodeid(rpc)] > 0]
+
+
+def channels_greater_than(rpc, amount, unit):
+    if not is_valid_unit(unit):
+        return "Value units are %s" % ', '.join(valid_units)
+
+    return [p for p in rpc.listpeers()['peers']
+            if p['channels'] and convert_msat(p['channels'][0]['msatoshi_total'], unit) >= amount]
+
+
+def channels_less_than(rpc, amount, unit):
+    if not is_valid_unit(unit):
+        return "Value units are %s" % ', '.join(valid_units)
+
+    return [p for p in rpc.listpeers()['peers']
+            if p['channels'] and convert_msat(p['channels'][0]['msatoshi_total'], unit) <= amount]
+
+
+def filter_channels(rpc, filter_name, amount=0, unit='msat'):
+    if not is_valid_filter(filter_name):
+        return "Value filter_name's are %s" % ', '.join(channel_filters)
+
+    if filter_name.lower() == 'pending':
+        return pending_channels(rpc)
+    if filter_name.lower() == 'active':
+        return active_channels(rpc)
+    if filter_name.lower() == 'closed':
+        return closed_channels(rpc)
+    if filter_name.lower() == 'incoming':
+        return incoming_channels(rpc)
+    if filter_name.lower() == 'outgoing':
+        return outgoing_channels(rpc)
+    if filter_name.lower() == 'greater_than':
+        return channels_greater_than(rpc, amount, unit)
+    if filter_name.lower() == 'less_than':
+        return channels_less_than(rpc, amount, unit)
