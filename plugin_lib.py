@@ -1,3 +1,7 @@
+from collections import defaultdict
+
+NO_WUMBO = 16777216
+
 valid_units = (
     'msat',
     'sat',
@@ -123,3 +127,42 @@ def filter_channels(rpc, filter_name, amount=0, unit='msat'):
         return channels_greater_than(rpc, amount, unit)
     if filter_name.lower() == 'less_than':
         return channels_less_than(rpc, amount, unit)
+
+
+# Get total onchain funds
+def onchain_sat(rpc):
+    return sum([int(x["value"]) for x in rpc.listfunds()["outputs"]])
+
+
+def get_node_capacity(rpc, node_id):
+    sum((c['satoshis'] for c in rpc.listchannels()['channels'] if c['source'] == node_id))
+
+
+def nodes_by_capacity(rpc):
+    channels = rpc.listchannels()['channels']
+    capacity = defaultdict(int)
+    for c in channels:
+        capacity[c['source']] += c['satoshis']
+    return capacity
+
+
+def nodes_by_channels(rpc):
+    channels = rpc.listchannels()['channels']
+    channel_count = defaultdict(int)
+    for c in channels:
+        channel_count[c['source']] += 1
+    return channel_count
+
+
+def top_n_capacity(rpc, n, ignore=[]):
+    caps = nodes_by_capacity(rpc)
+    return [{'node_id': nid, 'capacity_sat':  caps[nid]}
+            for nid in sorted(caps, key=caps.get, reverse=True)
+            if nid not in ignore][:n]
+
+
+def top_n_channel(rpc, n, ignore=[]):
+    chans = nodes_by_channels(rpc)
+    return [{'node_id': nid, 'num_channels':  chans[nid]}
+            for nid in sorted(chans, key=chans.get, reverse=True)
+            if nid not in ignore][:n]
