@@ -24,6 +24,7 @@ plugin-dir=<path to c-lightning-plugins>
 ## RPC Commands
 
 * `balance` : Aggregated on-chain balance and channel balance information. Still a work in progress...
+* `quickfund`: Use onchain funds to fund `amount` to `num_channels`, simply creating channels with top capacity nodes. This is not recommended for mainnet as it's a bad strategy.
 * `closeall` : Close all active channels, with option to force close after timeout
 * `getnetworkinfo` : Get statistical information about the current state of the network
 * `nodestats` : Get statistical information about a particular node, akin to [1ML](https://1ml.com) stats
@@ -36,6 +37,8 @@ To pretty print the JSON, simply pipe the output to [jq](https://stedolan.github
 lightning-cli balance | jq
 ```
 
-## Future Ideas
+## Future Command Ideas
 
-* balance_channels : Try to autobalance channels
+* Create Circular Route 
+* Auto Balance Channels
+
