@@ -32,7 +32,6 @@ def quickfund(plugin, amount_sat, num_channels):
                 "The current limit is %s sat / channel, need to make more channels" %
                 (num_channels, amount_sat, amount_per_channel, lib.WUMBO))
 
-    # Funds available to add to channel
     if onchain_value < amount_sat:
         return "Only have %s sat funds available, channot fund %s" % (amount_sat, onchain_value)
 
@@ -41,7 +40,7 @@ def quickfund(plugin, amount_sat, num_channels):
 
     # Top N capacity channels ignoring those the node already has an open
     # outgoing channel with
-    top_cap = lib.top_n_capacity(plugin.rpc, num_channels+10, ignore=out_peers)
+    top_cap = lib.top_n_capacity(plugin.rpc, num_channels+5, ignore=out_peers)
 
     num_success = 0
     for chan in top_cap:
