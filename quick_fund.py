@@ -12,9 +12,9 @@ def quickfund(plugin, amount_sat, num_channels):
        Only recommended for testnet, as it's not the best channel connection strategy.
     """
     # FAIL
-    if num_channels is inspect._empty:
+    if num_channels is None:
         return "Need to specify `num_channels` args"
-    if amount_sat is inspect._empty:
+    if amount_sat is None:
         return "Need to specify `amount_sat` args"
     if amount_sat < 50000:
         return "Recommended to create channels with at least 50000 sat"
@@ -37,8 +37,8 @@ def quickfund(plugin, amount_sat, num_channels):
 
     for chan in top_cap:
         plugin.log("Funding channel %s with %s sat" % (chan, amount_sat))
-        #plugin.rpc.connect(chan['node_id'])
-        #plugin.rpc.fundchannel(chan['node_id'], amount_sat)
+        plugin.rpc.connect(chan['node_id'])
+        plugin.rpc.fundchannel(chan['node_id'], amount_sat)
 
     return "Succes!"
 
