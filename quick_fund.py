@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
+from lib.node_stats import onchain_balance, top_n_capacity, WUMBO
+from lib.channel_filters import outgoing_channels
 from lightning import Plugin
-import plugin_lib as lib
 
 plugin = Plugin(autopatch=True)
 
@@ -12,7 +13,7 @@ def quickfund(plugin, amount_sat, num_channels):
 
        Argument amount_sat can be an integer or 'all'
     """
-    onchain_value = lib.onchain_confirmed_sat(plugin.rpc)
+    onchain_value = onchain_balance(plugin.rpc)
     amount_sat = onchain_value if amount_sat == 'all' else amount_sat
 
     if not isinstance(amount_sat, int):
@@ -27,20 +28,20 @@ def quickfund(plugin, amount_sat, num_channels):
                 "recommended to create channels with at least 50000 sat." %
                 (num_channels, amount_sat, amount_per_channel))
 
-    if amount_per_channel > lib.WUMBO:
+    if amount_per_channel > WUMBO:
         return ("Funding %s channels with %s sat results in %s sat / channel, "
                 "The current limit is %s sat / channel, need to make more channels" %
-                (num_channels, amount_sat, amount_per_channel, lib.WUMBO))
+                (num_channels, amount_sat, amount_per_channel, WUMBO))
 
     if onchain_value < amount_sat:
         return "Only have %s sat funds available, channot fund %s" % (amount_sat, onchain_value)
 
     # If node already has outgoing connections to some peers, it should to ignore them
-    out_peers = [p['id'] for p in lib.outgoing_channels(plugin.rpc)]
+    out_peers = [p['id'] for p in outgoing_channels(plugin.rpc)]
 
     # Top N capacity channels ignoring those the node already has an open
     # outgoing channel with
-    top_cap = lib.top_n_capacity(plugin.rpc, num_channels+5, ignore=out_peers)
+    top_cap = top_n_capacity(plugin.rpc, num_channels + 5, ignore=out_peers)
 
     num_success = 0
     for chan in top_cap:

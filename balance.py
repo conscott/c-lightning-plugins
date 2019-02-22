@@ -40,39 +40,6 @@ def balance(plugin, unit='btc'):
     num_active_incoming, num_active_outgoing = 0, 0
     num_closed_incoming, num_closed_outgoing = 0, 0
     reserve_balance = 0
-    for p in peerinfo['peers']:
-        for channel in p['channels']:
-            # Channel is incoming if our node didn't fund the channel
-            incoming = channel['funding_allocation_msat'][node_id] == 0
-            if incoming:
-                num_incoming += 1
-                initial_incoming += channel['msatoshi_total']
-            else:
-                num_outgoing += 1
-                initial_outgoing += channel['msatoshi_total']
-
-            if channel_pending(channel['state']):
-                pending_outgoing += channel['msatoshi_to_us']
-                pending_incoming += channel['msatoshi_total'] - channel['msatoshi_to_us']
-                if incoming:
-                    num_pend_incoming += 1
-                else:
-                    num_pend_outgoing += 1
-            elif channel_active(channel['state']):
-                reserve_balance += channel['our_channel_reserve_satoshis']
-                active_outgoing += channel['msatoshi_to_us']
-                active_incoming += channel['msatoshi_total'] - channel['msatoshi_to_us']
-                if incoming:
-                    num_active_incoming += 1
-                else:
-                    num_active_outgoing += 1
-            else:
-                closed_incoming += channel['msatoshi_total'] - channel['msatoshi_to_us']
-                closed_outgoing += channel['msatoshi_to_us']
-                if incoming:
-                    num_closed_incoming += 1
-                else:
-                    num_closed_outgoing += 1
 
     paid = sum([p['msatoshi'] for p in payments['payments'] if p['status'] == 'complete'])
     paid_w_fees = sum([p['msatoshi_sent'] for p in payments['payments'] if p['status'] == 'complete'])
