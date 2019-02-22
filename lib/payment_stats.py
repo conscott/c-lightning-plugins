@@ -15,6 +15,16 @@ def complete_payments(rpc):
             if p['status'] == 'complete']
 
 
+# Total number of incomplete payments
+def num_incomplete_payments(rpc):
+    return len(incomplete_payments(rpc))
+
+
+# Total number of complete payments
+def num_complete_payments(rpc):
+    return len(complete_payments(rpc))
+
+
 # Total routing fees paid thus far on node
 def routing_fees_paid(rpc):
     return Amount(sum((p['msatoshi_sent'] - p['msatoshi']
