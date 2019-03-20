@@ -18,6 +18,7 @@ def balance(plugin, unit='btc'):
     peerinfo = plugin.rpc.listpeers()
     payments = plugin.rpc.listpayments()
     invoices = plugin.rpc.listinvoices()
+    forwards = plugin.rpc.listforwards()
     node_id = plugin.rpc.getinfo()['id']
 
     # Funds available to add to channel
@@ -70,6 +71,7 @@ def balance(plugin, unit='btc'):
     paid_w_fees = sum([p['msatoshi_sent'] for p in payments['payments'] if p['status'] == 'complete'])
     fees = sum([(p['msatoshi_sent'] - p['msatoshi']) for p in payments['payments'] if p['status'] == 'complete'])
     received = sum([i['msatoshi_received'] for i in invoices['invoices'] if i['status'] == 'paid'])
+    fees_routed = sum([i['fee'] for i in forwards['forwards'] if i['status'] != 'failed'])
 
     data = {
         'unit': unit,
@@ -93,7 +95,8 @@ def balance(plugin, unit='btc'):
         'total_invoices_paid': convert_msat(paid, unit),
         'total_routing_fees_paid': convert_msat(fees, unit),
         'total_paid_with_routing': convert_msat(paid_w_fees, unit),
-        'total_received_invoices': convert_msat(received, unit)
+        'total_received_invoices': convert_msat(received, unit),
+        'total_routing_fees_collected': convert_msat(fees_routed, unit)
     }
     plugin.log(json.dumps(data, indent=2))
     return data
