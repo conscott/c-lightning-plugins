@@ -5,8 +5,8 @@ from lib.channel_filters import filter_channels
 plugin = Plugin(autopatch=True)
 
 
-@plugin.method("filter_channels")
-def filter_channels(plugin, filter_name, amount=0, unit='msat'):
+@plugin.method("filterchannels")
+def filterchannels(plugin, filter_name, amount=0, unit='msat'):
     """Filter channels with `filter_name` as pending, active, closed, greater_than, or less_than with optional
        `amount` and `unit` (msat, sat, mbtc, or btc)
     """
