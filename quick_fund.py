@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from lib.node_stats import onchain_balance, top_n_capacity, WUMBO
+from lib.node_stats import onchain_confirmed_balance, top_n_capacity, WUMBO
 from lib.channel_filters import outgoing_channels
 from lightning import Plugin
 
@@ -13,7 +13,7 @@ def quickfund(plugin, amount_sat, num_channels):
 
        Argument amount_sat can be an integer or 'all'
     """
-    onchain_value = onchain_balance(plugin.rpc)
+    onchain_value = onchain_confirmed_balance(plugin.rpc).to('sat')
     amount_sat = onchain_value if amount_sat == 'all' else amount_sat
 
     if not isinstance(amount_sat, int):
@@ -28,10 +28,10 @@ def quickfund(plugin, amount_sat, num_channels):
                 "recommended to create channels with at least 50000 sat." %
                 (num_channels, amount_sat, amount_per_channel))
 
-    if amount_per_channel > WUMBO:
+    if amount_per_channel > WUMBO.to('sat'):
         return ("Funding %s channels with %s sat results in %s sat / channel, "
                 "The current limit is %s sat / channel, need to make more channels" %
-                (num_channels, amount_sat, amount_per_channel, WUMBO))
+                (num_channels, amount_sat, amount_per_channel, WUMBO.to('sat')))
 
     if onchain_value < amount_sat:
         return "Only have %s sat funds available, channot fund %s" % (amount_sat, onchain_value)
