@@ -1,23 +1,21 @@
-from amount import Amount
+from lib.amount import Amount
 
 
-# Incomplete payments
-def incomplete_payments(rpc):
-    return [p['msatoshi_sent']
-            for p in rpc.listpayments()['payments']
-            if p['status'] != 'complete']
+# Failed payments
+def failed_payments(rpc):
+    return [p for p in rpc.listpayments()['payments']
+            if p['status'] == 'failed']
 
 
 # All complete payments
 def complete_payments(rpc):
-    return [p['msatoshi_sent']
-            for p in rpc.listpayments()['payments']
+    return [p for p in rpc.listpayments()['payments']
             if p['status'] == 'complete']
 
 
-# Total number of incomplete payments
-def num_incomplete_payments(rpc):
-    return len(incomplete_payments(rpc))
+# Total number of failed payments
+def num_failed_payments(rpc):
+    return len(failed_payments(rpc))
 
 
 # Total number of complete payments
@@ -32,6 +30,12 @@ def routing_fees_paid(rpc):
 
 
 # Total in sent payments
-def total_sent_payments(rpc):
+def total_payments(rpc):
     return Amount(sum((p['msatoshi_sent']
                        for p in complete_payments(rpc))), 'msat')
+
+# Total in sent payments
+def total_payments_no_fees(rpc):
+    return Amount(sum((p['msatoshi']
+                       for p in complete_payments(rpc))), 'msat')
+

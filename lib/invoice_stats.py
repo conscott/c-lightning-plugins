@@ -1,24 +1,21 @@
-from amount import Amount
+from lib.amount import Amount
 
 
 # All paid invoices
 def paid_invoices(rpc):
-    return [i['msatoshi_received']
-            for i in rpc.listinvoices()['invoices']
+    return [i for i in rpc.listinvoices()['invoices']
             if i['status'] == 'paid']
 
 
 # All unpaid invoices
 def unpaid_invoices(rpc):
-    return [i['msatoshi_received']
-            for i in rpc.listinvoices()['invoices']
+    return [i for i in rpc.listinvoices()['invoices']
             if i['status'] == 'unpaid']
 
 
 # All expired invoices
 def expired_invoices(rpc):
-    return [i['msatoshi_received']
-            for i in rpc.listinvoices()['invoices']
+    return [i for i in rpc.listinvoices()['invoices']
             if i['status'] == 'expired']
 
 

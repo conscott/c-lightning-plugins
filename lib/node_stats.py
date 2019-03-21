@@ -1,7 +1,7 @@
 from collections import defaultdict
-from amount import Amount
+from lib.amount import Amount
 
-
+# Default max channel size (for now)
 WUMBO = Amount(16777216, 'sat')
 
 
@@ -10,10 +10,24 @@ def nodeid(rpc):
     return rpc.getinfo()['id']
 
 
-# Get total onchain funds
+# Get total onchain funds including unconfirmed
 def onchain_balance(rpc):
     return Amount(sum((int(x["value"])
                        for x in rpc.listfunds()["outputs"])), 'sat')
+
+
+# Get total unconfirmed onchain funds
+def onchain_confirmed_balance(rpc):
+    return Amount(sum((int(x["value"])
+                       for x in rpc.listfunds()["outputs"]
+                       if x["status"] == "confirmed")), 'sat')
+
+
+# Get total confirmed onchain funds
+def onchain_unconfirmed_balance(rpc):
+    return Amount(sum((int(x["value"])
+                       for x in rpc.listfunds()["outputs"]
+                       if x["status"] == "unconfirmed")), 'sat')
 
 
 # Get total capacity of node by node_id

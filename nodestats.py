@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 import json
 from lightning import Plugin
-from plugin_lib import valid_units, is_valid_unit, convert_msat, convert_sat
+from lib.amount import valid_units, is_valid_unit, convert_msat, convert_sat
+from lib.node_stats import nodeid
 from statistics import median
 
 plugin = Plugin(autopatch=True)
@@ -9,22 +10,25 @@ plugin = Plugin(autopatch=True)
 
 # A copy of lnd's nodestats rpc command
 @plugin.method("nodestats")
-def nodestats(plugin, nodeid, unit='sat', verbose=False):
+def nodestats(plugin, node_id='me', unit='sat', verbose=False):
     """Get statistical information about a node's channel
     """
 
-    if len(nodeid) != 66:
+    if node_id == 'me':
+        node_id = nodeid(plugin.rpc)
+
+    if len(node_id) != 66:
         return "Must enter a valid node id"
 
     if not is_valid_unit(unit):
         return "Value units are %s" % ', '.join(valid_units)
 
     try:
-        node_info = plugin.rpc.listnodes(nodeid)['nodes'][0]
+        node_info = plugin.rpc.listnodes(node_id)['nodes'][0]
     except IndexError:
         return "Node id not found"
 
-    node_channels = [c for c in plugin.rpc.listchannels()['channels'] if c['source'] == nodeid]
+    node_channels = [c for c in plugin.rpc.listchannels()['channels'] if c['source'] == node_id]
     active_channels = [c for c in node_channels if c['active'] is True]
     capacity = [c['satoshis'] for c in active_channels]
     fee_rate = [c['fee_per_millionth'] for c in active_channels]
@@ -48,7 +52,7 @@ def nodestats(plugin, nodeid, unit='sat', verbose=False):
         base_fee_avg = 0
 
     data = {
-        'node': nodeid,
+        'node': node_id,
         'alias': node_info['alias'],
         'color': node_info['color'],
         'ip_addrs': [addr['address'] for addr in node_info['addresses']],

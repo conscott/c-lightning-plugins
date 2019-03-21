@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from lightning import Plugin
-import lib.channel_filters import filter_channels
+from lib.channel_filters import filter_channels
 
 plugin = Plugin(autopatch=True)
 

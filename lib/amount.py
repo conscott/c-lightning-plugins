@@ -52,7 +52,7 @@ class Amount():
         self._unit = unit.lower()
 
     def to(self, to_unit):
-        return (self._amt * convert_any[self._unit][to_unit])
+        return self._amt / convert_any[self._unit][to_unit]
 
     def __str__(self):
         return "Amount: %s %s" % (self._amt, self._unit)

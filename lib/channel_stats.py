@@ -1,5 +1,5 @@
-from amount import Amount
-from channel_filters import (
+from lib.amount import Amount
+from lib.channel_filters import (
         pending_channels, active_channels,
         closed_channels, incoming_channels,
         outgoing_channels, active_incoming_channels,

@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 from lightning import Plugin
 import json
-from plugin_lib import (valid_units, is_valid_unit, convert_msat,
-                        convert_sat, channel_pending, channel_active)
+import lib.node_stats
+import lib.balance_stats
+
+from lib.amount import is_valid_unit, valid_units
 
 plugin = Plugin(autopatch=True)
 
@@ -14,65 +16,23 @@ def balance(plugin, unit='btc'):
     if not is_valid_unit(unit):
         return "Value units are %s" % ', '.join(valid_units)
 
-    funds = plugin.rpc.listfunds()
-    peerinfo = plugin.rpc.listpeers()
-    payments = plugin.rpc.listpayments()
-    invoices = plugin.rpc.listinvoices()
-    forwards = plugin.rpc.listforwards()
-    node_id = plugin.rpc.getinfo()['id']
-
-    onchain_value, onchain_conf_value, onchain_unconf_value = 0, 0, 0
-    # Funds available to add to channel
-    for x in funds["outputs"]:
-        amt = int(x["value"])
-        onchain_value += amt
-        if x["status"] == "confirmed":
-            onchain_conf_value += amt
-        else:
-            onchain_unconf_value += amt
-
-    pending_incoming, pending_outgoing = 0, 0
-    active_incoming, active_outgoing = 0, 0
-    closed_incoming, closed_outgoing = 0, 0
-    initial_incoming, initial_outgoing = 0, 0
-    num_incoming, num_outgoing = 0, 0
-    num_pend_incoming, num_pend_outgoing = 0, 0
-    num_active_incoming, num_active_outgoing = 0, 0
-    num_closed_incoming, num_closed_outgoing = 0, 0
-    reserve_balance = 0
-
-    paid = sum([p['msatoshi'] for p in payments['payments'] if p['status'] == 'complete'])
-    paid_w_fees = sum([p['msatoshi_sent'] for p in payments['payments'] if p['status'] == 'complete'])
-    fees = sum([(p['msatoshi_sent'] - p['msatoshi']) for p in payments['payments'] if p['status'] == 'complete'])
-    received = sum([i['msatoshi_received'] for i in invoices['invoices'] if i['status'] == 'paid'])
-    fees_routed = sum([i['fee'] for i in forwards['forwards'] if i['status'] != 'failed'])
+    rpc = plugin.rpc
 
     data = {
         'unit': unit,
-        'total_onchain_balance': convert_sat(onchain_value, unit),
-        'confirmed_onchain_balance': convert_sat(onchain_conf_value, unit),
-        'unconfirmed_onchain_balance': convert_sat(onchain_unconf_value, unit),
-        'num_pending_outgoing_channels': num_pend_outgoing,
-        'num_pending_incoming_channels': num_pend_incoming,
-        'num_active_outgoing_channels': num_active_outgoing,
-        'num_active_incoming_channels': num_active_incoming,
-        'num_closed_outgoing_channels': num_closed_outgoing,
-        'num_closed_incoming_channels': num_closed_incoming,
-        'total_funded_outgoing': convert_msat(initial_outgoing, unit),
-        'total_funded_incoming': convert_msat(initial_incoming, unit),
-        'pending_outgoing_balance': convert_msat(pending_outgoing, unit),
-        'pending_incoming_balance': convert_msat(pending_incoming, unit),
-        'active_outgoing_balance': convert_msat(active_outgoing, unit),
-        'active_incoming_balance': convert_msat(active_incoming, unit),
-        'closed_recent_to_self': convert_msat(closed_outgoing, unit),
-        'closed_recent_to_remote': convert_msat(closed_incoming, unit),
-        'reserve_balance':  convert_msat(reserve_balance, unit),
-        'spendable_balance': convert_msat(active_outgoing - reserve_balance, unit),
-        'total_invoices_paid': convert_msat(paid, unit),
-        'total_routing_fees_paid': convert_msat(fees, unit),
-        'total_paid_with_routing': convert_msat(paid_w_fees, unit),
-        'total_received_invoices': convert_msat(received, unit),
-        'total_routing_fees_collected': convert_msat(fees_routed, unit)
+        'onchain_total_balance': lib.node_stats.onchain_balance(rpc).to(unit),
+        'onchain_confirmed_balance': lib.node_stats.onchain_confirmed_balance(rpc).to(unit),
+        'onchain_unconfirmed_balance': lib.node_stats.onchain_unconfirmed_balance(rpc).to(unit),
+        'total_funded_outgoing': lib.balance_stats.funded_outgoing_balance(rpc).to(unit),
+        'total_funded_incoming': lib.balance_stats.funded_incoming_balance(rpc).to(unit),
+        'pending_outgoing_balance': lib.balance_stats.pending_balance(rpc).to(unit),
+        'pending_incoming_balance': lib.balance_stats.pending_incoming_balance(rpc).to(unit),
+        'active_outgoing_balance': lib.balance_stats.active_balance(rpc).to(unit),
+        'active_incoming_balance': lib.balance_stats.active_incoming_balance(rpc).to(unit),
+        'closed_recent_to_self': lib.balance_stats.closed_balance(rpc).to(unit),
+        'closed_recent_to_remote': lib.balance_stats.closed_incoming_balance(rpc).to(unit),
+        'reserve_balance': lib.balance_stats.reserve_balance(rpc).to(unit),
+        'spendable_balance': lib.balance_stats.spendable_balance(rpc).to(unit)
     }
     plugin.log(json.dumps(data, indent=2))
     return data

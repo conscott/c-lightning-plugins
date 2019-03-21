@@ -1,5 +1,5 @@
-from amounts import Amount
-from node_stats import nodeid
+from lib.amount import Amount
+from lib.node_stats import nodeid
 
 channel_filters = (
    'pending',
@@ -53,7 +53,7 @@ def active_channels(rpc):
 def closed_channels(rpc):
     return [p for p in rpc.listpeers()['peers']
             if p['channels'] and
-            channel_closed(p['channels'][0]['state'])]
+            channel_closed(p['channels'][-1]['state'])]
 
 
 # Channels funded by remote peer
@@ -107,7 +107,7 @@ def closed_incoming_channels(rpc):
     return [p for p in rpc.listpeers()['peers']
             if p['channels'] and
             channel_closed(p['channels'][0]['state']) and
-            p['channels'][0]['funding_allocation_msat'][nodeid(rpc)] <= 0]
+            p['channels'][-1]['funding_allocation_msat'][nodeid(rpc)] <= 0]
 
 
 # Closed channels funded locally
@@ -115,7 +115,7 @@ def closed_outgoing_channels(rpc):
     return [p for p in rpc.listpeers()['peers']
             if p['channels'] and
             channel_closed(p['channels'][0]['state']) and
-            p['channels'][0]['funding_allocation_msat'][nodeid(rpc)] > 0]
+            p['channels'][-1]['funding_allocation_msat'][nodeid(rpc)] > 0]
 
 
 # List channels with total capacity greater than given amount

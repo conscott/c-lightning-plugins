@@ -24,10 +24,13 @@ plugin-dir=<path to c-lightning-plugins>
 ## RPC Commands
 
 * `balance` : Aggregated on-chain balance and channel balance information. Still a work in progress...
+* `nodestats` : Get statistical information about a particular node, akin to [1ML](https://1ml.com) stats
+* `channelstats` : Get stats about channels
+* `invoicestats` : Get stats about invoices
+* `paymentstats` : Get stats about payments
 * `quickfund`: Use onchain funds to fund `amount` to `num_channels`, simply creating channels with top capacity nodes. This is not recommended for mainnet as it's a bad strategy.
 * `closeall` : Close all active channels, with option to force close after timeout
 * `getnetworkinfo` : Get statistical information about the current state of the network
-* `nodestats` : Get statistical information about a particular node, akin to [1ML](https://1ml.com) stats
 * `filter_channels`: Filter channels by various parameters
 
 ## Pretty Print
