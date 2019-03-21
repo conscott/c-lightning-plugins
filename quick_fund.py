@@ -1,44 +1,61 @@
 #!/usr/bin/env python3
 from lightning import Plugin
 import plugin_lib as lib
-import inspect
 
 plugin = Plugin(autopatch=True)
 
 
 @plugin.method("quickfund")
 def quickfund(plugin, amount_sat, num_channels):
-    """Automatically create num_channels of amount_sat with top capacity nodes.
-       Only recommended for testnet, as it's not the best channel connection strategy.
+    """Automatically fund num_channels with amount_sat total connecting to top capacity nodes.
+       Only recommended for testnet as this is the worst kind of autopilot.
+
+       Argument amount_sat can be an integer or 'all'
     """
-    # FAIL
-    if num_channels is None:
-        return "Need to specify `num_channels` args"
-    if amount_sat is None:
-        return "Need to specify `amount_sat` args"
-    if amount_sat < 50000:
-        return "Recommended to create channels with at least 50000 sat"
-    if amount_sat > lib.NO_WUMBO:
-        return "Cannot create channels larger than %s sat for now" % lib.NO_WUMBO
+    onchain_value = lib.onchain_confirmed_sat(plugin.rpc)
+    amount_sat = onchain_value if amount_sat == 'all' else amount_sat
+
+    if not isinstance(amount_sat, int):
+        return "Must input integer number or 'all' for amount_sat"
+
+    # Need to save some space for tx fees, this is a total kludge, save
+    # 5000 sat per channel for fees of opening
+    amount_per_channel = int(amount_sat / num_channels) - 5000
+
+    if amount_per_channel < 50000:
+        return ("Funding %s channels with %s sat results in %s sat / channel, "
+                "recommended to create channels with at least 50000 sat." %
+                (num_channels, amount_sat, amount_per_channel))
+
+    if amount_per_channel > lib.WUMBO:
+        return ("Funding %s channels with %s sat results in %s sat / channel, "
+                "The current limit is %s sat / channel, need to make more channels" %
+                (num_channels, amount_sat, amount_per_channel, lib.WUMBO))
 
     # Funds available to add to channel
-    onchain_value = lib.onchain_sat(plugin.rpc)
-    if onchain_value < (amount_sat * num_channels):
-        return ("Total funds required for %s channels of %s sat = %s, "
-                "Only have %s sat funds available"
-                % (num_channels, amount_sat, amount_sat * num_channels, onchain_value))
+    if onchain_value < amount_sat:
+        return "Only have %s sat funds available, channot fund %s" % (amount_sat, onchain_value)
 
     # If node already has outgoing connections to some peers, it should to ignore them
     out_peers = [p['id'] for p in lib.outgoing_channels(plugin.rpc)]
 
     # Top N capacity channels ignoring those the node already has an open
     # outgoing channel with
-    top_cap = lib.top_n_capacity(plugin.rpc, num_channels, ignore=out_peers)
+    top_cap = lib.top_n_capacity(plugin.rpc, num_channels+10, ignore=out_peers)
 
+    num_success = 0
     for chan in top_cap:
-        plugin.log("Funding channel %s with %s sat" % (chan, amount_sat))
-        plugin.rpc.connect(chan['node_id'])
-        plugin.rpc.fundchannel(chan['node_id'], amount_sat)
+        plugin.log("Funding channel %s with %s sat" % (chan, amount_per_channel))
+        try:
+            plugin.rpc.connect(chan['node_id'])
+            plugin.rpc.fundchannel(chan['node_id'], amount_per_channel)
+            num_success += 1
+            if num_success >= num_channels:
+                break
+        except Exception as e:
+            # If failing to fund, just keep on trying
+            plugin.log("Funding channel %s failed... %s" % (chan, str(e)))
+            continue
 
     return "Succes!"
 

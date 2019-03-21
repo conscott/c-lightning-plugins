@@ -21,8 +21,15 @@ def balance(plugin, unit='btc'):
     forwards = plugin.rpc.listforwards()
     node_id = plugin.rpc.getinfo()['id']
 
+    onchain_value, onchain_conf_value, onchain_unconf_value = 0, 0, 0
     # Funds available to add to channel
-    onchain_value = sum([int(x["value"]) for x in funds["outputs"]])
+    for x in funds["outputs"]:
+        amt = int(x["value"])
+        onchain_value += amt
+        if x["status"] == "confirmed":
+            onchain_conf_value += amt
+        else:
+            onchain_unconf_value += amt
 
     pending_incoming, pending_outgoing = 0, 0
     active_incoming, active_outgoing = 0, 0
@@ -75,7 +82,9 @@ def balance(plugin, unit='btc'):
 
     data = {
         'unit': unit,
-        'onchain_balance': convert_sat(onchain_value, unit),
+        'total_onchain_balance': convert_sat(onchain_value, unit),
+        'confirmed_onchain_balance': convert_sat(onchain_conf_value, unit),
+        'unconfirmed_onchain_balance': convert_sat(onchain_unconf_value, unit),
         'num_pending_outgoing_channels': num_pend_outgoing,
         'num_pending_incoming_channels': num_pend_incoming,
         'num_active_outgoing_channels': num_active_outgoing,

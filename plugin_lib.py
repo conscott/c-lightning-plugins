@@ -1,6 +1,6 @@
 from collections import defaultdict
 
-NO_WUMBO = 16777216
+WUMBO = 16777216
 
 valid_units = (
     'msat',
@@ -132,6 +132,16 @@ def filter_channels(rpc, filter_name, amount=0, unit='msat'):
 # Get total onchain funds
 def onchain_sat(rpc):
     return sum([int(x["value"]) for x in rpc.listfunds()["outputs"]])
+
+
+def onchain_confirmed_sat(rpc):
+    return sum([int(x["value"]) for x in rpc.listfunds()["outputs"]
+                if x["status"] == "confirmed"])
+
+
+def onchain_pending_sat(rpc):
+    return sum([int(x["value"]) for x in rpc.listfunds()["outputs"]
+               if x["status"] == "unconfirmed"])
 
 
 def get_node_capacity(rpc, node_id):
