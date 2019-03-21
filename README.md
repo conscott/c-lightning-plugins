@@ -31,7 +31,7 @@ plugin-dir=<path to c-lightning-plugins>
 * `quickfund`: Use onchain funds to fund `amount` to `num_channels`, simply creating channels with top capacity nodes. This is not recommended for mainnet as it's a bad strategy.
 * `closeall` : Close all active channels, with option to force close after timeout
 * `getnetworkinfo` : Get statistical information about the current state of the network
-* `filter_channels`: Filter channels by various parameters
+* `filterchannels`: Filter channels by various parameters
 
 ## Pretty Print
 To pretty print the JSON, simply pipe the output to [jq](https://stedolan.github.io/jq/)
