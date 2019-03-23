@@ -1,23 +1,20 @@
 # c-lightning-plugins
 
-Work In Progress...
+A collection of plugins for c-lightning to do convenient things. At the moment the utilities primarily perform useful filter and aggregation, but the embeded library can be extended for many things.
 
-A collection of plugins for c-lightning to do convenient things. Please contribute ideas!
+Please contribute ideas!
 
 ## Usage
 
-Start lightningd with this `plugin-dir` command pointing to this repository
+Start lightningd with the `plugin-dir` option pointing to this repository
 ```bash
-git clone https://github.com/conscott/c-lightning-plugins.git
-cd c-lightning-plugins
-export CL_DIR=`pwd`
-lightningd --plugin-dir $CL_DIR
+lightningd --plugin-dir <path to this repo>
 ```
 
 Alternatively you can add a line to the c-lightning config (~/.lightning/config)
 ```
 ...
-plugin-dir=<path to c-lightning-plugins>
+plugin-dir=<path to this repo>
 ...
 ```
 
