@@ -42,6 +42,9 @@ def quickfund(plugin, amount_sat, num_channels):
     # Top N capacity channels ignoring those the node already has an open
     # outgoing channel with
     top_cap = top_n_capacity(plugin.rpc, num_channels + 5, ignore=out_peers)
+    if not top_cap:
+        plugin.log("Could not find any channels, need to wait for more gossip?")
+        return "Could not find any channels, need to wait for more gossip?"
 
     num_success = 0
     for chan in top_cap:
@@ -57,7 +60,7 @@ def quickfund(plugin, amount_sat, num_channels):
             plugin.log("Funding channel %s failed... %s" % (chan, str(e)))
             continue
 
-    return "Succes!"
+    return "Success!"
 
 
 plugin.run()

@@ -15,6 +15,9 @@ def getnetworkinfo(plugin):
     nodes = plugin.rpc.listnodes()['nodes']
     channels = plugin.rpc.listchannels()['channels']
 
+    if not nodes or not channels:
+        return "No nodes or channels in view, please first connect to a peer"
+
     # Graph stats
     capacity = 0
     channel_ids = set()

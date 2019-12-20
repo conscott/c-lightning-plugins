@@ -13,7 +13,10 @@ def paymentstats(plugin, unit='btc'):
     rpc = plugin.rpc
     total_paid = lib.payment_stats.total_payments(rpc).to(unit)
     total_fees = lib.payment_stats.routing_fees_paid(rpc).to(unit)
-    percent_fees = round(total_fees / total_paid * 100, 2)
+    if total_paid:
+        percent_fees = round(total_fees / total_paid * 100, 2)
+    else:
+        percent_fees = 0.0
     data = {
         'unit': unit,
         'num_failed_payments': lib.payment_stats.num_failed_payments(rpc),
