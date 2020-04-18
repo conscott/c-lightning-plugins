@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 import json
 from collections import defaultdict
-from lightning import Plugin
+from pyln.client import Plugin
 from statistics import median
 
-plugin = Plugin(autopatch=True)
+plugin = Plugin()
 
 
 # A copy of lnd's getnetworkinfo rpc command

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-from lightning import Plugin
+from pyln.client import Plugin
 import json
 import lib.payment_stats
 
-plugin = Plugin(autopatch=True)
+plugin = Plugin()
 
 
 @plugin.method("paymentstats")

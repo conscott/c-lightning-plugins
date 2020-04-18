@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 import json
-from lightning import Plugin
+from pyln.client import Plugin
 from lib.amount import valid_units, is_valid_unit, convert_msat, convert_sat
 from lib.node_stats import nodeid
 from statistics import median
 
-plugin = Plugin(autopatch=True)
+plugin = Plugin()
 
 
 # A copy of lnd's nodestats rpc command

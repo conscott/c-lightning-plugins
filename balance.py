@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-from lightning import Plugin
+from pyln.client import Plugin
 import json
 import lib.node_stats
 import lib.balance_stats
 
 from lib.amount import is_valid_unit, valid_units
 
-plugin = Plugin(autopatch=True)
+plugin = Plugin()
 
 
 @plugin.method("balance")

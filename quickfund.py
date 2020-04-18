@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 from lib.node_stats import onchain_confirmed_balance, top_n_capacity, WUMBO
 from lib.channel_filters import outgoing_channels
-from lightning import Plugin
+from pyln.client import Plugin
 
-plugin = Plugin(autopatch=True)
+plugin = Plugin()
 
 
 @plugin.method("quickfund")
